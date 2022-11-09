@@ -9,8 +9,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("server is up");
+});
+
 //connecting mongodb
-console.log(process.env.DB_PASSWORD, process.env.DB_USER_NAME);
 
 const uri = `mongodb+srv://${process.env.DB_USER_NAME}:${process.env.DB_PASSWORD}@cluster0.brxmqep.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -29,8 +32,16 @@ async function dbConnect() {
 
 dbConnect();
 
-app.get("/", (req, res) => {
-  res.send("server is up");
+//collections
+const Products = client.db("awesome-food").collection("Products");
+
+// Apis
+
+app.get("/products", async (req, res) => {
+  const query = {};
+  const cursor = Products.find(query);
+  const result = await cursor.toArray();
+  res.send(result);
 });
 
 app.listen(port, () => {
