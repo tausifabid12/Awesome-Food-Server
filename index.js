@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -28,28 +28,50 @@ async function dbConnect() {
     console.log("db connected");
   } catch {}
 }
-// client.connect();
 
 dbConnect();
 
 //collections
 const Products = client.db("awesome-food").collection("Products");
+const ReviewsCollection = client.db("awesome-food").collection("reviews");
 
 // Apis
 
+//getting all products with limit
 app.get("/products", async (req, res) => {
-  const limit = parseInt(req.headers.limit);
-  console.log(limit);
-  const query = {};
-  const cursor = Products.find(query);
-  let result;
-  if (limit) {
-    result = await cursor.limit(limit).toArray();
-  } else {
-    result = await cursor.toArray();
-  }
+  try {
+    const limit = parseInt(req.headers.limit);
+    console.log(limit);
+    const query = {};
+    const cursor = Products.find(query);
+    let result;
+    if (limit) {
+      result = await cursor.limit(limit).toArray();
+    } else {
+      result = await cursor.toArray();
+    }
 
-  res.send(result);
+    res.send(result);
+  } catch {}
+});
+
+//getting selected products
+app.get("/productsDetails/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) };
+    const cursor = Products.find(query);
+    const result = await cursor.toArray();
+    res.send(result);
+  } catch {}
+});
+
+//adding review
+app.post("/review", async (req, res) => {
+  try {
+    const reviews = await ReviewsCollection.insertOne(req.body);
+    res.send(reviews);
+  } catch {}
 });
 
 app.listen(port, () => {
