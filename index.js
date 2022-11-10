@@ -38,9 +38,17 @@ const Products = client.db("awesome-food").collection("Products");
 // Apis
 
 app.get("/products", async (req, res) => {
+  const limit = parseInt(req.headers.limit);
+  console.log(limit);
   const query = {};
   const cursor = Products.find(query);
-  const result = await cursor.toArray();
+  let result;
+  if (limit) {
+    result = await cursor.limit(limit).toArray();
+  } else {
+    result = await cursor.toArray();
+  }
+
   res.send(result);
 });
 
