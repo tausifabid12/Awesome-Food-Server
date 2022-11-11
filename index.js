@@ -31,7 +31,7 @@ async function dbConnect() {
 
 dbConnect();
 
-//* collections
+//**** collections
 const Products = client.db("awesome-food").collection("Products");
 const ReviewsCollection = client.db("awesome-food").collection("reviews");
 
@@ -100,6 +100,33 @@ app.get("/userReview", async (req, res) => {
     }
     const cursor = ReviewsCollection.find(query);
     const result = await cursor.toArray();
+    res.send(result);
+  } catch {}
+});
+
+//updating reviews
+
+app.patch("/userReview/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(req.body, id);
+    const filter = { _id: ObjectId(id) };
+    const updateDoc = {
+      $set: req.body,
+    };
+    const result = await ReviewsCollection.updateOne(filter, updateDoc);
+    res.send(result);
+  } catch (err) {
+    console.log(err.name);
+  }
+});
+
+//deletion reviews
+app.delete("/userReview/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const query = { _id: ObjectId(id) };
+    const result = await ReviewsCollection.deleteOne(query);
     res.send(result);
   } catch {}
 });
