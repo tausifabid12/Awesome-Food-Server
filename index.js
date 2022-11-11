@@ -31,13 +31,14 @@ async function dbConnect() {
 
 dbConnect();
 
-//collections
+//* collections
 const Products = client.db("awesome-food").collection("Products");
 const ReviewsCollection = client.db("awesome-food").collection("reviews");
 
 // Apis
 
-//getting all products with limit
+// ** getting all products with limit
+
 app.get("/products", async (req, res) => {
   try {
     const limit = parseInt(req.headers.limit);
@@ -69,8 +70,37 @@ app.get("/productsDetails/:id", async (req, res) => {
 //adding review
 app.post("/review", async (req, res) => {
   try {
-    const reviews = await ReviewsCollection.insertOne(req.body);
-    res.send(reviews);
+    const result = await ReviewsCollection.insertOne(req.body);
+    res.send(result);
+  } catch {}
+});
+
+//getting all reviews of a item
+app.get("/review/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const query = { productId: id };
+    const cursor = ReviewsCollection.find(query);
+    const result = await cursor.toArray();
+    res.send(result);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// getting all reviews of a user
+
+app.get("/userReview", async (req, res) => {
+  try {
+    let query = {};
+    if (req.query.email) {
+      query = {
+        email: req.query.email,
+      };
+    }
+    const cursor = ReviewsCollection.find(query);
+    const result = await cursor.toArray();
+    res.send(result);
   } catch {}
 });
 
