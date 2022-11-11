@@ -56,6 +56,13 @@ app.get("/products", async (req, res) => {
   } catch {}
 });
 
+//putting data
+app.post("/products", async (req, res) => {
+  try {
+    const result = await Products.insertOne(req.body);
+    res.send(result);
+  } catch {}
+});
 //getting selected products
 app.get("/productsDetails/:id", async (req, res) => {
   try {
